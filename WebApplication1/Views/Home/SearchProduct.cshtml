@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "Layout2";
+
+}
+
+<!--search form -->
+<div class=" container">
+    <div class="search-form text-center" style="margin-top:70px;margin-bottom:20px;">
+        <input type="text" class="search-input" placeholder="Search products" aria-label="Search" id="searchText" name="searchText">
+        <button class="search-btn" id="search" >
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+    </div>
+</div>
+
+<div id="myplaceholder">
+    <partial name="_SearchPartial" model="Model">
+</div>
+
+
+
+
+

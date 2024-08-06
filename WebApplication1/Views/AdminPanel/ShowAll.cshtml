@@ -1,0 +1,60 @@
+﻿@model List<Appointment>
+@{
+    Layout = "_Adminlayout";
+}
+
+<div class="text-center" style="margin-top:80px;">
+    <p class="welcome">Appoinments</p>
+</div>
+
+<div style="margin-top: 20px;">
+
+    <div class="table-responsive">
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th><h5>ID</h5></th>
+                    <th><h5>Name</h5></th>
+                    <th><h5>Phone number</h5></th>
+                    <th><h5>Pet Type</h5></th>
+                    <th><h5>Preferred Date and Time</h5></th>
+                    <th><h5>Reason</h5></th>
+                  
+                    <th><h5>Decline</h5></th>
+                    <th><h5>Done</h5></th>
+                </tr>
+            </thead>
+
+            @foreach (var app in Model)
+            {
+
+
+
+                <tbody>
+                    <tr>
+                        <td>@app.Id</td>
+                        <td>@app.Name</td>
+                        <td>@app.Phone</td>
+                        <td>@app.PetType</td>
+                        <td>@app.preferredDateTime</td>
+                        <td>
+                            @Html.Raw(Html.Encode(app.Reason))
+                        </td>
+                        <td><a class="btn btn-outline-danger" href="@Url.Action("Delete", "Appointment", new { id =app.Id })">Decline</a></td>
+                        <td><a class="btn btn-outline-info" href="@Url.Action("Delete", "Appointment", new { id =app.Id })">Done</a></td>
+                    </tr>
+                </tbody>
+
+
+            }
+        </table>
+
+    </div>
+
+</div>
+
+
+
+
+

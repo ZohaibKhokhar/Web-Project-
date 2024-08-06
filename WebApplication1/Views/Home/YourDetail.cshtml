@@ -1,0 +1,33 @@
+﻿@model Customer
+@{
+	Layout = "Layout2";
+}
+
+
+<div class="login-container py-5">
+
+	<div class="text-center">
+		<p class="welcome">Customer Detail</p>
+	</div>
+	<span>
+		<h4>Name:</h4>
+		<p>@Model.Name</p>
+	</span>
+	<span>
+		<h4>Address:</h4>
+		<p>@Model.Address</p>
+	</span>
+	<span>
+		<h4>Phone Number:</h4>
+		<p>@Model.PhoneNumber</p>
+	</span>
+
+	<span>
+		<h4>Email:</h4>
+		<p>@Model.Email</p>
+	</span>
+
+
+</div>
+
+

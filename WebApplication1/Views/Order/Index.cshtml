@@ -1,0 +1,90 @@
+﻿
+@model List<Products>
+@{
+    Layout = "Layout2";
+}
+
+<main>
+
+    <div class="proheader-bg">
+    </div>
+
+   
+
+    <div class="cart-container" style="margin-top: 30px;">
+
+        @for (int i = 0; i < Model.Count; i += 5)
+        {
+            <div class="row py-5" style="justify-content: space-evenly;">
+
+                @for (int j = i; j < Math.Min(i + 5, Model.Count); j++)
+                {
+                <div class="card" style="width: 12rem; height: 21rem;margin-top: 7px;">
+                    <img src="@Model[j].ImageUrl" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h6 class="card-title">@Model[j].PName</h6>
+                            <p class="card-text">@Model[j].DiscountedPrice</p>
+                            @if (Model[j].Quantity > 0)
+                            {
+                                <p  style="color:green;">In Stock</p>
+                            }
+                            else
+                            {
+                                <p class="card-text" style="color:red;">Out of Stock</p>
+                            }
+
+                            <button class="btn btn-dark btn-sm add-to-cart-btn" data-product-id="@Model[j].ID" data-quantity="1">
+                                Add to Cart
+                            </button>
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+
+
+    
+    </div>
+
+    <partial name="_Sliding" />
+
+</main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Function to update the cart count
+        function updateCartCount(count) {
+            $('#cart-count').text(count); // Update the cart count on the page
+            if (count > 0) {
+                $('#empty-cart-message').hide();
+            } else {
+                $('#empty-cart-message').show();
+            }
+        }
+
+        // AJAX for adding to cart
+        $('.add-to-cart-btn').click(function (e) {
+            e.preventDefault(); // Prevent default form submission
+            var productId = $(this).data('product-id');
+            var quantity = $(this).data('quantity');
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AddToCart", "Order")',
+                data: { productId: productId, quantity: quantity },
+                success: function (response) {
+                    if (response.success) {
+                        updateCartCount(response.count); // Update cart count
+                    } else {
+                        alert(response.message); // Show error message
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("An error occurred: " + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+

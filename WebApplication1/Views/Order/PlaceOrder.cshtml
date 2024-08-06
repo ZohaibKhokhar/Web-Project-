@@ -1,0 +1,43 @@
+﻿@model Customer
+@{
+    Layout = "Layout2";
+}
+
+<main>
+<div class="login-container py-1">
+    <form method="post" id="checkout-form" action="/Order/PlaceOrder">
+        @Html.AntiForgeryToken()
+        <div class="text-center">
+            <p class="welcome">Customer Detail</p>
+        </div>
+        <div class="form-group my-2">
+            <label asp-for="Name" class="control-label">Name</label>
+            <input asp-for="Name" class="form-control" placeholder="Enter your name " id="name"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+            <div class="form-group my-2">
+                <label asp-for="Email" class="control-label">Email</label>
+                <input asp-for="Email" class="form-control" placeholder="Enter your email address" id="email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        <div class="form-group my-2">
+            <label asp-for="Address" class="control-label">Address</label>
+            <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter your address" id="address"></textarea>
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+        <div class="form-group my-2">
+            <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
+            <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number" id="phoneNumber"  />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+            <div class="sign-up-container" style="padding-top: 10px;padding-bottom: 10px;">
+            <div class="row">
+                <button type="submit" class="btn btn-login btn-block">Place Order</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+
+</main>

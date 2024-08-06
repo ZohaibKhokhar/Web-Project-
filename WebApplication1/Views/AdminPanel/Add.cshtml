@@ -1,0 +1,71 @@
+﻿@model Products
+@{
+    Layout = "_AdminLayout";
+}
+
+<main>
+    <div class="login-container">
+        <h2 class="login-title">Add Products</h2>
+
+        <form id="fileUploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label asp-for="PName">Product Name</label>
+                <input asp-for="PName" type="text" class="form-control" placeholder="Enter product name" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price">Price</label>
+                <input asp-for="Price" type="text" class="form-control" placeholder="Enter price" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountedPrice">Discounted Price</label>
+                <input asp-for="DiscountedPrice" type="text" class="form-control" placeholder="Discounted price" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="Quantity">Quantity</label>
+                <input asp-for="Quantity" type="text" class="form-control" placeholder="Quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="images">Select An Image</label><br>
+                <input type="file" id="images" name="img" accept="image/*" required>
+            </div>
+            <div class="sign-up-container">
+                <div class="row">
+                    <button type="submit" class="btn btn-login btn-block">Add Product</button>
+                </div>
+            </div>
+        </form>
+        <div id="uploadResult" class="mt-3"></div>
+    </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#fileUploadForm').submit(function (e) {
+            e.preventDefault();
+            console.log("Form submission started");  // Debugging line
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '@Url.Action("AjaxUpload", "AdminPanel")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log("AJAX call success");  // Debugging line
+                    if (response.success) {
+                        $('#uploadResult').html('<div class="alert alert-success">Product added successfully!</div>');
+                    } else {
+                        $('#uploadResult').html('<div class="alert alert-danger">' + response.message + '</div>');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error("AJAX call error: ", textStatus, errorThrown);  // Debugging line
+                    $('#uploadResult').html('<div class="alert alert-danger">An error occurred during the upload.</div>');
+                }
+            });
+        });
+    });
+</script>

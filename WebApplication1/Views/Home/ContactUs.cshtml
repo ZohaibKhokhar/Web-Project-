@@ -1,0 +1,67 @@
+﻿@model FeedBack
+@{
+	Layout = "Layout2";
+}
+
+ <main>
+
+<div>
+        <div class="container">
+            <div class="row" >
+            
+                
+                <div class="col-lg-5 col-md-5 col-sm-12"   >
+
+                    <p class="welcome"style="margin-top:90px;">Contact Us</p>
+                    <p style="font-style: italic; color:black;font-family:'Times New Roman', Times, serif;font-size:medium;">If you want to contact us physically you can meet us at our original location 
+                        this is the address of our store you can ask ask us any thing related to your pet health abd food.
+                        
+                        If you want to contact us physically you can meet us at our original location 
+                        this is the address of our store you can ask ask us any thing related to your pet health abd food.
+                        If you want to contact us physically you can meet us at our original location 
+                        this is the address of our store you can ask ask us any thing related to your pet</p>
+                </div>
+                
+            <div class="col-lg-2 col-md-1 col-sm-0"><p style="color:black;"> </p></div>
+                <div class="col-lg-5 col-md-6 col-sm-12" >
+                    <div class="contact-container">
+                   <h2 class="contact-title">Write A Message</h2>
+                        <form method="post" action="/Home/ContactUs">
+                            @Html.AntiForgeryToken()
+                            <div class="form-group my-2">
+                              <label for="username">Name</label>
+                              <input asp-for="Name" type="text" class="form-control form-color"  placeholder="Name">
+                               <span asp-validation-for="Name" class="text-danger"></span> 
+                          </div>
+            
+                            <div class="form-group my-2">
+                                <label for="username">Email</label>
+                                <input asp-for="Email" type="text" class="form-control form-color" placeholder="Email" >
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+            
+                              <div class="form-row my-3">
+                                <label for="appointmentReason">What can we help you?</label>
+                                <textarea asp-for="Message" class="form-control form-color" id="appointmentReason" rows="3" placeholder="Write Message" ></textarea>
+                                <span asp-validation-for="Message" class="text-danger"></span>
+                            </div>
+            
+                            <div class="sign-up-container">
+                              <div class="row"><button type="submit" class="btn btn-login btn-block ">Send Message</button>
+                              </div>
+                            </div>
+                            </form>
+                    </div>
+                </div>
+             
+            </div>
+            </div>
+
+
+
+
+        </div>
+
+
+ </main>
+
