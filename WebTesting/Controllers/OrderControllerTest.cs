@@ -3,11 +3,11 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using WebApplication1.Controllers;
-using WebApplication1.Models.Services;
+using Domain.Entities;
+using Domain.ServiceInterfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using WebApplication1.Models;
 
 namespace MyWebAppTesting.Controllers
 {

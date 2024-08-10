@@ -3,8 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using System.Security.Claims;
-using WebApplication1.Models.Services;
-using WebApplication1.Models;
+using Application.Services;
+using Domain.Interfaces;
+using Domain.ServiceInterfaces;
+using Infrastructure.Repositories;
+using Domain.Entities;
+using Application.SanitizationService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -17,15 +22,23 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IProductService, ProductsRepository>();
-builder.Services.AddScoped<IAppointmentService, AppointmentRepository>();
-builder.Services.AddScoped<IOrderService, OrderRepository>();
-builder.Services.AddScoped<IOrderItemService, OrderItemRepository>();
-builder.Services.AddScoped<ICustomerService, CustomerRepository>();
-builder.Services.AddTransient<ISanitizationHelper, SanitizationHelper>();
-builder.Services.AddScoped<IFeedBackRepository, FeedBackRepository>();
-//adding authorization here 
+//adding the dependency injection
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+builder.Services.AddScoped<IFeedBackService, FeedBackService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ISanitizationHelper, SanitizationHelper>();
 
+
+
+builder.Services.AddScoped<IProductRepository,ProductsRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IFeedBackRepository, FeedBackRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy => policy.RequireClaim(ClaimTypes.Name, "Admin52@12345"));

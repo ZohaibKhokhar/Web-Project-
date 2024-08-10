@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using WebApplication1.Models.Services;
-using WebApplication1.Models;
+using Domain.ServiceInterfaces;
+using Domain.Entities;
 
 namespace WebApplication1.Controllers
 {
@@ -14,16 +14,16 @@ namespace WebApplication1.Controllers
         private readonly IOrderService _orderService;
         private readonly IOrderItemService _orderItemService;
         private readonly ICustomerService _customerService;
-        private readonly IFeedBackRepository _feedBackRepository;
+        private readonly IFeedBackService _feedBackService;
         private readonly ISanitizationHelper _sanitizer;
-        public HomeController(ILogger<HomeController> logger,ISanitizationHelper sanitizer, IProductService productService, IOrderService orderService, IOrderItemService orderItemService, ICustomerService customerService,IFeedBackRepository feedBackRepository)
+        public HomeController(ILogger<HomeController> logger,ISanitizationHelper sanitizer, IProductService productService, IOrderService orderService, IOrderItemService orderItemService, ICustomerService customerService,IFeedBackService feedBackService)
         {
             _logger = logger;
             _productService = productService;
             _orderService = orderService;
             _orderItemService = orderItemService;
             _customerService = customerService;
-            _feedBackRepository=feedBackRepository;
+            _feedBackService=feedBackService;
             _sanitizer = sanitizer;
 
         }
@@ -52,7 +52,7 @@ namespace WebApplication1.Controllers
             if (ModelState.IsValid)
             {
                 feedBack.Message = _sanitizer.SanitizeString(feedBack.Message);
-                _feedBackRepository.Add(feedBack);
+                _feedBackService.Add(feedBack);
                 return RedirectToAction("feedBackSuccess");
             }
             else

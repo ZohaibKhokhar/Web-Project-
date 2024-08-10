@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
-using WebApplication1.Models;
+using Application.Services;
+using Domain.Entities;
+using Domain.ServiceInterfaces;
 
 namespace WebApplication1.Controllers
 {
@@ -16,8 +18,8 @@ namespace WebApplication1.Controllers
         private readonly IOrderItemService _orderItemService;
         private readonly IAppointmentService _appointmentService;
         private readonly ICustomerService _customerService;
-        private readonly IFeedBackRepository _feedBackRepository;
-        public AdminPanelController(ILogger<AdminPanelController> logger,IFeedBackRepository feedBackRepository, IWebHostEnvironment env,IProductService productService, IAppointmentService appointmentService,ICustomerService customerService,IOrderService orderService,IOrderItemService orderItemService)
+        private readonly IFeedBackService _feedBackService;
+        public AdminPanelController(ILogger<AdminPanelController> logger,IFeedBackService feedBackService, IWebHostEnvironment env,IProductService productService, IAppointmentService appointmentService,ICustomerService customerService,IOrderService orderService,IOrderItemService orderItemService)
         {
             _logger = logger;
             _env = env;
@@ -27,7 +29,7 @@ namespace WebApplication1.Controllers
             _orderService = orderService;
             _orderItemService= orderItemService;
             _appointmentService = appointmentService;
-            _feedBackRepository = feedBackRepository;
+            _feedBackService = feedBackService;
 
         }
 
@@ -162,7 +164,7 @@ namespace WebApplication1.Controllers
         }
         public IActionResult Messages()
         {
-            return View(_feedBackRepository.GetAll());
+            return View(_feedBackService.GetAll());
         }
 
     }

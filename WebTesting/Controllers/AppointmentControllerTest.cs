@@ -3,9 +3,9 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebApplication1.Controllers;
-using WebApplication1.Models.Services;
+using Domain.ServiceInterfaces;
 using System.Collections.Generic;
-using WebApplication1.Models;
+using Domain.Entities;
 
 namespace MyWebAppTesting.Controllers
 {

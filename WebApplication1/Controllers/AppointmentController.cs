@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Models.Services;
-using WebApplication1.Models;
+using Domain.ServiceInterfaces;
+using Domain.Entities;
 
 
 namespace WebApplication1.Controllers

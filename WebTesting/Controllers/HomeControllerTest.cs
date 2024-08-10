@@ -3,9 +3,9 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebApplication1.Controllers;
-using WebApplication1.Models.Services;
+using Domain.ServiceInterfaces;
 using System.Collections.Generic;
-using WebApplication1.Models;
+using Domain.Entities;
 
 namespace MyWebAppTesting.Controllers // Test namespace
 {
@@ -17,7 +17,7 @@ namespace MyWebAppTesting.Controllers // Test namespace
         private Mock<IOrderService> _mockOrderService;
         private Mock<IOrderItemService> _mockOrderItemService;
         private Mock<ICustomerService> _mockCustomerService;
-        private Mock<IFeedBackRepository> _mockFeedBackRepository;
+        private Mock<IFeedBackService> _mockFeedBackService;
         private Mock<ISanitizationHelper> _mockSanitizer;
         private HomeController _controller;
 
@@ -30,8 +30,9 @@ namespace MyWebAppTesting.Controllers // Test namespace
             _mockOrderService = new Mock<IOrderService>();
             _mockOrderItemService = new Mock<IOrderItemService>();
             _mockCustomerService = new Mock<ICustomerService>();
-            _mockFeedBackRepository = new Mock<IFeedBackRepository>();
+            _mockFeedBackService = new Mock<IFeedBackService>();
             _mockSanitizer = new Mock<ISanitizationHelper>();
+            _mockFeedBackService = new Mock<IFeedBackService>();
 
             // Initialize the controller with mock dependencies
             _controller = new HomeController(
@@ -41,7 +42,7 @@ namespace MyWebAppTesting.Controllers // Test namespace
                 _mockOrderService.Object,
                 _mockOrderItemService.Object,
                 _mockCustomerService.Object,
-                _mockFeedBackRepository.Object
+                _mockFeedBackService.Object
             );
         }
 
@@ -87,7 +88,7 @@ namespace MyWebAppTesting.Controllers // Test namespace
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("feedBackSuccess", result.ActionName);
-            _mockFeedBackRepository.Verify(repo => repo.Add(It.IsAny<FeedBack>()), Times.Once);
+            _mockFeedBackService.Verify(repo => repo.Add(It.IsAny<FeedBack>()), Times.Once);
         }
 
         [Test]
