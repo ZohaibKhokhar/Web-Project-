@@ -4,8 +4,9 @@
 }
 
 <main style="margin-top: 100px ;">
-    <div class="container d-flex justify-content-center mt-5" style="  border-radius: 20px; background-color:#f0f0f0; padding: 70px;">
-        <div class="border rounded p-4" style="border-radius: 30px; width: 800px;">
+   @*  <div class="container d-flex justify-content-center mt-5" style="  border-radius: 20px; background-color:#f0f0f0; padding: 70px;"> *@
+       <div class="appointment-container"> 
+@*        <div class="border rounded p-4" style="border-radius: 30px; width: 800px;"> *@
             <h2 class="contact-title">Book An Appointment</h2>
             <form method="post" action="/Appointment/Add">
                 @Html.AntiForgeryToken()
@@ -17,7 +18,7 @@
                
 
                 <div class="form-row">
-                    <label asp-for="Email">Email Address</label>
+                    <label asp-for="Email">Email</label>
                     <input asp-for="Email" type="text" class="form-control" placeholder="Email Address">
                     <span class="text-danger" asp-validation-for="Email"></span>
                 </div>
@@ -67,8 +68,23 @@
                 </div>
 
             </form>
+            
+                   
+              @*   <div class="container">
+                <div class="row my-2">           <a class="btn btn-outline-warning" href="@Url.Action("GetAll", "Appointment")">GetAll</a></div>
+                <div class="row my-2">  <a class="btn btn-outline-info" href="@Url.Action("FetchAll", "Appointment")">FetchAll</a></div>
+            </div> *@
+
+
+
+
+
         </div>
-    </div>
+   
+@* 
+            </div> *@
+            
+@*     </div> *@
   
     </main>
 

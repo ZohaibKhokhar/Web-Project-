@@ -108,17 +108,17 @@ namespace WebApplication1.Controllers
             return Json(new { success = true, message = "Product added successfully." });
         }
 
+  
         public IActionResult AllOrders()
         {
-            List<Order> orders = _orderService.GetAll();
-            return View(orders);
+         
+            return View(_orderService.GetAll());
         }
 
         public IActionResult OrderDetail(int id)
         {
-            List<OrderItem> items = new List<OrderItem>();
-            items = _orderItemService.GetAllByOrderId(id);
-            return View(items);
+         
+            return View(_orderItemService.GetAllByOrderId(id));
         }
 
         public IActionResult CustomerDetail(int id)

@@ -16,7 +16,7 @@ namespace Application.Services
 
         public void AddCustomer(Customer customer)
         {
-            // Business logic before adding a customer
+
             if (customer != null && !string.IsNullOrEmpty(customer.Name))
             {
                 _customerRepository.AddCustomer(customer);
@@ -29,19 +29,19 @@ namespace Application.Services
 
         public List<Customer> GetAllCustomers()
         {
-            // Business logic before fetching all customers
+       
             return _customerRepository.GetAllCustomers();
         }
 
         public int getLastId()
         {
-            // Business logic to get the last customer ID
+ 
             return _customerRepository.getLastId();
         }
 
         public Customer GetCustomerById(int id)
         {
-            // Business logic before fetching a customer by ID
+  
             var customer = _customerRepository.GetCustomerById(id);
             if (customer == null)
             {

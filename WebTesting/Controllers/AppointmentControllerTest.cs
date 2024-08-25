@@ -85,26 +85,6 @@ namespace MyWebAppTesting.Controllers
             Assert.IsNotNull(result);
         }
 
-        [Test]
-        public void MyAppointments_ReturnsViewResult_WithAppointments()
-        {
-            // Arrange
-            var appointments = new List<Appointment>
-            {
-                new Appointment { Id = 1, Name = "Test Appointment 1", Reason = "Test", Email = "test1@example.com" },
-                new Appointment { Id = 2, Name = "Test Appointment 2", Reason = "Test", Email = "test2@example.com" }
-            };
-            _mockAppointmentService.Setup(service => service.GetByEmail(It.IsAny<string>())).Returns(appointments);
-
-            // Act
-            var result = _controller.MyAppointments() as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            var model = result.Model as List<Appointment>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count);
-        }
 
         [Test]
         public void Delete_ValidId_RedirectsToShowAll()

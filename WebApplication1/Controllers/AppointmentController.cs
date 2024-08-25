@@ -13,13 +13,14 @@ namespace WebApplication1.Controllers
         private readonly ISanitizationHelper _sanitizer;
         private readonly ILogger<HomeController> _logger;
 
-        public AppointmentController(ILogger<HomeController> logger,IAppointmentService appointmentService, ISanitizationHelper sanitizer)
+        public AppointmentController(ILogger<HomeController> logger, IAppointmentService appointmentService, ISanitizationHelper sanitizer)
         {
             _logger = logger;
             _appointmentService = appointmentService;
             _sanitizer = sanitizer;
 
         }
+ 
         public IActionResult Index()
         {
             return View();
@@ -39,13 +40,22 @@ namespace WebApplication1.Controllers
             {
                 appointment.Name = _sanitizer.SanitizeString(appointment.Name);
                 appointment.Reason = _sanitizer.SanitizeString(appointment.Reason);
-                appointment.Email =User.Identity.Name;
+                appointment.Email = User.Identity.Name;
                 _appointmentService.Add(appointment);
                 return RedirectToAction("Success");
             }
             else
-                return View(appointment);    
+                return View(appointment);
         }
+        public IActionResult GetAll()
+        {
+            return View(_appointmentService.GetAll());
+        }
+        public JsonResult FetchAll()
+        {
+            return Json(_appointmentService.GetAll());
+        }
+
         public IActionResult Success()
         {
             return View();
@@ -61,4 +71,3 @@ namespace WebApplication1.Controllers
         }
     }
 }
-        

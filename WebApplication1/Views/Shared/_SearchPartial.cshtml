@@ -30,8 +30,19 @@
     }
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.7/signalr.min.js"></script>
 <script>
     $(document).ready(function () {
+        var connection = new signalR.HubConnectionBuilder().withUrl("/orderHub").build();
+
+        connection.on("ReceiveOrderNotification", function () {
+            alert("A new order has been placed!");
+            // You can update the UI or reload parts of the page if needed
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
         // Function to update the cart count
         function updateCartCount(count) {
             $('#cart-count').text(count); // Update the cart count on the page

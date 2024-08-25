@@ -9,7 +9,7 @@ using Domain.ServiceInterfaces;
 using Infrastructure.Repositories;
 using Domain.Entities;
 using Application.SanitizationService;
-
+using WebApplication1.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,6 +21,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSignalR();
 
 //adding the dependency injection
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
@@ -43,6 +45,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy => policy.RequireClaim(ClaimTypes.Name, "Admin52@12345"));
 });
+
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -79,4 +82,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+app.MapHub<OrderHub>("/orderHub");
 app.Run();

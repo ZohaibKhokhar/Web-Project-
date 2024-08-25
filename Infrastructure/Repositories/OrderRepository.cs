@@ -1,6 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
+using Dapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using System.Collections.Generic;
 
 namespace Infrastructure.Repositories
 {
@@ -10,127 +12,65 @@ namespace Infrastructure.Repositories
 
         public void AddOrder(Order order)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand("INSERT INTO Orders (OrderId,CustomerId, OrderDate, TotalPrice) VALUES (@id,@CustomerId, @OrderDate, @TotalPrice)", connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@id", order.OrderId);
-                    command.Parameters.AddWithValue("@CustomerId", order.CustomerId);
-                    command.Parameters.AddWithValue("@OrderDate", order.OrderDate);
-                    command.Parameters.AddWithValue("@TotalPrice", order.TotalPrice);
-                    command.ExecuteNonQuery();
-                }
+                var query = "INSERT INTO Orders (OrderId, CustomerId, OrderDate, TotalPrice) VALUES (@OrderId, @CustomerId, @OrderDate, @TotalPrice)";
+                connection.Execute(query, order);
             }
         }
 
         public List<Order> GetAll()
         {
-            List<Order> orders = new List<Order>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand("SELECT * FROM Orders", connection))
-                {
-                    connection.Open();
-                    SqlDataReader reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        Order order = new Order
-                        {
-                            OrderId = reader.GetInt32(0),
-                            CustomerId = reader.GetInt32(1),
-                            OrderDate = reader.GetDateTime(2),
-                            TotalPrice = reader.GetDecimal(3)
-                        };
-
-                        orders.Add(order);
-                    }
-                }
+                var query = "SELECT * FROM Orders";
+                return connection.Query<Order>(query).AsList();
             }
-
-            return orders;
         }
+
         public int GetMaxOrderId()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand("SELECT MAX(OrderId) FROM Orders", connection))
-                {
-                    connection.Open();
-                    object result = command.ExecuteScalar();
-                    return result == null || result == DBNull.Value ? 0 : (int)result;
-                }
+                var query = "SELECT MAX(OrderId) FROM Orders";
+                return connection.ExecuteScalar<int>(query);
             }
         }
 
         public int GetOrderIdByCustomerId(int id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand("SELECT OrderId FROM Orders WHERE CustomerId = @CustomerId", connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@CustomerId", id);
-                    object result = command.ExecuteScalar();
-                    return result == null || result == DBNull.Value ? 0 : (int)result;
-                }
+                var query = "SELECT OrderId FROM Orders WHERE CustomerId = @CustomerId";
+                return connection.ExecuteScalar<int>(query, new { CustomerId = id });
             }
         }
+
         public Order getOrderById(int id)
         {
-            Order order = new Order();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand("SELECT * FROM Orders WHERE OrderId = @OrderId", connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@OrderId", id);
-                    SqlDataReader reader = command.ExecuteReader();
-
-                    if (reader.Read())
-                    {
-                        order.OrderId = reader.GetInt32(0);
-                        order.CustomerId = reader.GetInt32(1);
-                        order.OrderDate = reader.GetDateTime(2);
-                        order.TotalPrice = reader.GetDecimal(3);
-                    }
-                }
+                var query = "SELECT * FROM Orders WHERE OrderId = @OrderId";
+                return connection.QuerySingleOrDefault<Order>(query, new { OrderId = id });
             }
-
-            return order;
         }
+
         public void deleteOrderById(int id)
         {
-            Order order = new Order();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand("DELETE FROM Orders WHERE OrderId = @OrderId", connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@OrderId", id);
-                    int affectedRows = command.ExecuteNonQuery();
-                }
+                var query = "DELETE FROM Orders WHERE OrderId = @OrderId";
+                connection.Execute(query, new { OrderId = id });
             }
         }
+
         public int getCustomerIdByOrderId(int id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand("SELECT CustomerId FROM Orders WHERE OrderId = @OrderId", connection))
-                {
-                    connection.Open();
-                    command.Parameters.AddWithValue("@OrderId", id);
-                    object result = command.ExecuteScalar();
-                    return result == null || result == DBNull.Value ? 0 : (int)result;
-                }
+                var query = "SELECT CustomerId FROM Orders WHERE OrderId = @OrderId";
+                return connection.ExecuteScalar<int>(query, new { OrderId = id });
             }
         }
     }
 }
-
-
-

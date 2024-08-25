@@ -14,7 +14,7 @@ namespace Application.Services
 
         public void Add(Products product)
         {
-            // Business logic before adding a product
+        
             if (product.Price > 0)
             {
                 _productRepository.Add(product);
@@ -27,25 +27,23 @@ namespace Application.Services
 
         public void Update(Products product)
         {
-            // Business logic before updating a product
+       
             _productRepository.Update(product);
         }
 
         public void DeleteById(int id)
         {
-            // Business logic before deleting a product
+     
             _productRepository.DeleteById(id);
         }
 
         public Products GetByName(string name)
         {
-            // Business logic before fetching a product by name
             return _productRepository.GetByName(name);
         }
 
         public void UpdateQuantity(int id, int minusQuantity)
         {
-            // Business logic for updating quantity
             var product = _productRepository.Get(id);
             if (product != null && product.Quantity >= minusQuantity)
             {

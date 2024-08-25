@@ -14,7 +14,7 @@ namespace Application.Services
 
         public void Add(Appointment appointment)
         {
-            // Business logic before adding an appointment
+    
             if (!string.IsNullOrEmpty(appointment.Name) && !string.IsNullOrEmpty(appointment.Email))
             {
                 _appointmentRepository.Add(appointment);
@@ -27,25 +27,25 @@ namespace Application.Services
 
         public void Update(Appointment appointment)
         {
-            // Business logic before updating an appointment
+           
             _appointmentRepository.Update(appointment);
         }
 
         public void DeleteById(int id)
         {
-            // Business logic before deleting an appointment by ID
+      
             _appointmentRepository.DeleteById(id);
         }
 
         public void DeleteByName(string name)
         {
-            // Business logic before deleting an appointment by Name
+          
             _appointmentRepository.DeleteByName(name);
         }
 
         public List<Appointment> GetByEmail(string email)
         {
-            // Business logic before fetching appointments by email
+         
             if (!string.IsNullOrEmpty(email))
             {
                 return _appointmentRepository.GetByEmail(email);
@@ -58,7 +58,7 @@ namespace Application.Services
 
         public List<Appointment> GetAll()
         {
-            // Maybe add sorting or filtering logic here
+          
             return _appointmentRepository.GetAll();
         }
     }

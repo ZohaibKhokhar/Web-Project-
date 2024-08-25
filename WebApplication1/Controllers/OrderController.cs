@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using Domain.ServiceInterfaces;
 using Domain.Entities;
 using WebApplication1.Models;
+using Microsoft.AspNetCore.SignalR;
+using WebApplication1.Hubs;
 
 [Authorize]
 public class OrderController : Controller
@@ -14,6 +16,7 @@ public class OrderController : Controller
     private readonly ICustomerService _customerService;
     private readonly IProductService _productService;
     private readonly ISanitizationHelper _sanitizer;
+
     public OrderController(IHttpContextAccessor httpContextAccessor, IOrderService orderService, IOrderItemService orderItemService, ICustomerService customerService,IProductService productService,ISanitizationHelper sanitizer)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -103,7 +106,7 @@ public class OrderController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult PlaceOrder(Customer customer)
+    public async Task<IActionResult> PlaceOrder(Customer customer)
     {
         if (ModelState.IsValid)
         {
@@ -111,7 +114,6 @@ public class OrderController : Controller
             customer.Address = _sanitizer.SanitizeString(customer.Address);
             int id = _customerService.getLastId();
             customer.CustomerId = ++id;
-
 
             customer.Email = User.Identity.Name;
             _customerService.AddCustomer(customer);
@@ -144,14 +146,19 @@ public class OrderController : Controller
             }
 
             HttpContext.Session.Remove("Cart");
+
+  
+            var hubContext = (IHubContext<OrderHub>)HttpContext.RequestServices.GetService(typeof(IHubContext<OrderHub>));
+            await hubContext.Clients.All.SendAsync("ReceiveOrderNotification");
+
             return RedirectToAction("OrderSuccess", "Order");
         }
         else
         {
             return View(customer);
         }
-  
     }
+
     public IActionResult OrderSuccess()
     {
         return View();
@@ -221,7 +228,7 @@ public class OrderController : Controller
     {
         try
         {
-            int count = GetCartItemsFromSession().Sum(item => item.Quantity);
+            int count = GetCartItemsFromSession().Count;
             return Json(new { count });
         }
         catch (Exception ex)

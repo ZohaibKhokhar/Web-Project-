@@ -1,7 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
-using System.Data;
+using Dapper;
 using Domain.Interfaces;
 using Domain.Entities;
+using System.Collections.Generic;
 
 namespace Infrastructure.Repositories
 {
@@ -19,46 +20,17 @@ namespace Infrastructure.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 var query = "INSERT INTO FeedBack (Name, Email, Message) VALUES (@Name, @Email, @Message)";
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@Name", feedback.Name);
-                    command.Parameters.AddWithValue("@Email", feedback.Email);
-                    command.Parameters.AddWithValue("@Message", feedback.Message);
-
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
+                connection.Execute(query,feedback);
             }
         }
 
         public IEnumerable<FeedBack> GetAll()
         {
-            var feedbackList = new List<FeedBack>();
-
             using (var connection = new SqlConnection(_connectionString))
             {
                 var query = "SELECT Id, Name, Email, Message FROM FeedBack";
-                using (var command = new SqlCommand(query, connection))
-                {
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var feedback = new FeedBack
-                            {
-                                Id = reader.GetInt32(0),
-                                Name = reader.GetString(1),
-                                Email = reader.GetString(2),
-                                Message = reader.GetString(3)
-                            };
-                            feedbackList.Add(feedback);
-                        }
-                    }
-                }
+                return connection.Query<FeedBack>(query);
             }
-
-            return feedbackList;
         }
     }
 }
