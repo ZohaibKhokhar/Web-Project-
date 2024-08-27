@@ -2,8 +2,6 @@
 {
     public interface ISanitizationHelper
     {
-        string SanitizeString(string input);
+        Task<string> SanitizeString(string input);
     }
-
-
 }

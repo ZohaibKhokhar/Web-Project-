@@ -54,19 +54,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.7/signalr.min.js"></script>
 <script>
     $(document).ready(function () {
-        var connection = 
-        signalR.HubConnectionBuilder().withUrl("/orderHub").build();
+        var connection = new signalR.HubConnectionBuilder().withUrl("/orderHub").build();
 
         connection.on("ReceiveOrderNotification", function () {
             alert("A new order has been placed!");
+  
         });
 
         connection.start().catch(function (err) {
             return console.error(err.toString());
         });
-
-
- 
+        
         function updateCartCount(count) {
             $('#cart-count').text(count); 
             if (count > 0) {
@@ -76,7 +74,7 @@
             }
         }
 
-      
+        
         $('.add-to-cart-btn').click(function (e) {
             e.preventDefault(); 
             var productId = $(this).data('product-id');
@@ -88,9 +86,9 @@
                 data: { productId: productId, quantity: quantity },
                 success: function (response) {
                     if (response.success) {
-                        updateCartCount(response.count); 
+                        updateCartCount(response.count); // Update cart count
                     } else {
-                        alert(response.message); 
+                        alert(response.message); // Show error message
                     }
                 },
                 error: function (xhr, status, error) {
@@ -100,4 +98,3 @@
         });
     });
 </script>
-

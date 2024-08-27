@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Application.Services;
 using Domain.Entities;
 using Domain.ServiceInterfaces;
@@ -19,7 +22,16 @@ namespace WebApplication1.Controllers
         private readonly IAppointmentService _appointmentService;
         private readonly ICustomerService _customerService;
         private readonly IFeedBackService _feedBackService;
-        public AdminPanelController(ILogger<AdminPanelController> logger,IFeedBackService feedBackService, IWebHostEnvironment env,IProductService productService, IAppointmentService appointmentService,ICustomerService customerService,IOrderService orderService,IOrderItemService orderItemService)
+
+        public AdminPanelController(
+            ILogger<AdminPanelController> logger,
+            IFeedBackService feedBackService,
+            IWebHostEnvironment env,
+            IProductService productService,
+            IAppointmentService appointmentService,
+            ICustomerService customerService,
+            IOrderService orderService,
+            IOrderItemService orderItemService)
         {
             _logger = logger;
             _env = env;
@@ -27,24 +39,24 @@ namespace WebApplication1.Controllers
             _appointmentService = appointmentService;
             _customerService = customerService;
             _orderService = orderService;
-            _orderItemService= orderItemService;
-            _appointmentService = appointmentService;
+            _orderItemService = orderItemService;
             _feedBackService = feedBackService;
-
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<Products> products = _productService.GetAll();
+            var products = await _productService.GetAll();
             return View(products);
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            return View(_productService.Get(id));
+            var product = await _productService.Get(id);
+            return View(product);
         }
+
         [HttpPost]
-        public IActionResult Edit(Products product, IFormFile ImageUrl)
+        public async Task<IActionResult> Edit(Products product, IFormFile ImageUrl)
         {
             if (ImageUrl != null && ImageUrl.Length > 0)
             {
@@ -58,32 +70,34 @@ namespace WebApplication1.Controllers
                 string filePath = Path.Combine(path, ImageUrl.FileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    ImageUrl.CopyTo(fileStream);
+                    await ImageUrl.CopyToAsync(fileStream);
                 }
 
                 product.ImageUrl = $"/ProductImages/{ImageUrl.FileName}";
             }
-            
-            _productService.Update(product);
-            return RedirectToAction("Index", "AdminPanel");
+
+            await _productService.Update(product);
+            return RedirectToAction("Index");
         }
 
-        public IActionResult Remove(int id)
+        public async Task<IActionResult> Remove(int id)
         {
-            _productService.DeleteById(id);
+            await _productService.DeleteById(id);
             return RedirectToAction("DeleteSuccess");
         }
+
         public IActionResult DeleteSuccess()
         {
             return View();
         }
+
         public IActionResult Add()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult AjaxUpload(Products product, IFormFile img)
+        public async Task<IActionResult> AjaxUpload(Products product, IFormFile img)
         {
             string wwwrootPath = _env.WebRootPath;
             string path = Path.Combine(wwwrootPath, "ProductImages");
@@ -97,75 +111,83 @@ namespace WebApplication1.Controllers
                 string filePath = Path.Combine(path, img.FileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    img.CopyTo(fileStream);
+                    await img.CopyToAsync(fileStream);
                 }
             }
 
             string imageUrl = $"/ProductImages/{img.FileName}";
             product.ImageUrl = imageUrl;
-            _productService.Add(product);
+            await _productService.Add(product);
 
             return Json(new { success = true, message = "Product added successfully." });
         }
 
-  
-        public IActionResult AllOrders()
+        public async Task<IActionResult> AllOrders()
         {
-         
-            return View(_orderService.GetAll());
+            var orders = await _orderService.GetAll();
+            return View(orders);
         }
 
-        public IActionResult OrderDetail(int id)
+        public async Task<IActionResult> OrderDetail(int id)
         {
-         
-            return View(_orderItemService.GetAllByOrderId(id));
+            var orderItems = await _orderItemService.GetAllByOrderId(id);
+            return View(orderItems);
         }
 
-        public IActionResult CustomerDetail(int id)
+        public async Task<IActionResult> CustomerDetail(int id)
         {
-         
-            return View(_customerService.GetCustomerById(id));
+            var customer = await _customerService.GetCustomerById(id);
+            return View(customer);
         }
 
-        public IActionResult ProductDetail(int id)
+        public async Task<IActionResult> ProductDetail(int id)
         {
-            return View(_productService.Get(id));
-        }
-        public IActionResult AllCustomers()
-        {
-            return View(_customerService.GetAllCustomers());
+            var product = await _productService.Get(id);
+            return View(product);
         }
 
-        public IActionResult ShowAll()
+        public async Task<IActionResult> AllCustomers()
         {
-            return View(_appointmentService.GetAll());
+            var customers = await _customerService.GetAllCustomers();
+            return View(customers);
         }
-        public IActionResult DeleteOrder(int id)
+
+        public async Task<IActionResult> ShowAll()
         {
-            int customerId=_orderService.getCustomerIdByOrderId(id);
-            _orderItemService.deleteByOrderId(id);
-            _orderService.deleteOrderById(id);
-            _customerService.deleteByCustomerId(customerId);
-            return RedirectToAction("OrderDeleteSuccess", "AdminPanel");
+            var appointments = await _appointmentService.GetAll();
+            return View(appointments);
         }
+
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            int customerId = await _orderService.getCustomerIdByOrderId(id);
+            await _orderItemService.deleteByOrderId(id);
+            await _orderService.deleteOrderById(id);
+            await _customerService.deleteByCustomerId(customerId);
+            return RedirectToAction("OrderDeleteSuccess");
+        }
+
         public IActionResult OrderDeleteSuccess()
         {
             return View();
         }
-        public IActionResult OrderDelivered(int id)
+
+        public async Task<IActionResult> OrderDelivered(int id)
         {
-            _orderItemService.deleteByOrderId(id);
-            _orderService.deleteOrderById(id);
-            return RedirectToAction("AllOrders", "AdminPanel");
+            await _orderItemService.deleteByOrderId(id);
+            await _orderService.deleteOrderById(id);
+            return RedirectToAction("AllOrders");
         }
+
         public IActionResult Success()
         {
             return View();
         }
-        public IActionResult Messages()
-        {
-            return View(_feedBackService.GetAll());
-        }
 
+        public async Task<IActionResult> Messages()
+        {
+            var feedbacks = await _feedBackService.GetAll();
+            return View(feedbacks);
+        }
     }
 }

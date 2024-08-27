@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Dapper;
 using System.Data;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -11,87 +12,98 @@ namespace Infrastructure.Repositories
     {
         private const string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=thisdb;Integrated Security=True;";
 
-        public void Add(Appointment appointment)
+        public async Task Add(Appointment appointment)
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "INSERT INTO Appointments (Name, PhoneNumber, PetType, AppointmentDateTime, ReasonForAppointment, Email) " +
                                "VALUES (@Name, @Phone, @PetType, @PreferredDateTime, @Reason, @Email)";
-                conn.Execute(query, appointment);
+                await conn.ExecuteAsync(query, appointment);
             }
         }
 
-        public void Update(Appointment appointment)
+        public async Task Update(Appointment appointment)
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "UPDATE Appointments SET Name = @Name, PhoneNumber = @Phone, PetType = @PetType, " +
                                "AppointmentDateTime = @PreferredDateTime, ReasonForAppointment = @Reason, Email = @Email " +
                                "WHERE ID = @Id";
-                conn.Execute(query,appointment);
+                await conn.ExecuteAsync(query, appointment);
             }
         }
 
-        public void Delete(Appointment appointment)
+        public async Task Delete(Appointment appointment)
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "DELETE FROM Appointments WHERE ID = @Id";
-                conn.Execute(query, new { appointment.Id });
+                await conn.ExecuteAsync(query, new { appointment.Id });
             }
         }
 
-        public void DeleteAll()
+        public async Task DeleteAll()
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "TRUNCATE TABLE Appointments";
-                conn.Execute(query);
+                await conn.ExecuteAsync(query);
             }
         }
 
-        public void DeleteById(int id)
+        public async Task DeleteById(int id)
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "DELETE FROM Appointments WHERE ID = @Id";
-                conn.Execute(query, new { Id = id });
+                await conn.ExecuteAsync(query, new { Id = id });
             }
         }
 
-        public void DeleteByName(string name)
+        public async Task DeleteByName(string name)
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "DELETE FROM Appointments WHERE Name = @Name";
-                conn.Execute(query, new { Name = name });
+                await conn.ExecuteAsync(query, new { Name = name });
             }
         }
 
-        public List<Appointment> GetAll()
+        public async Task<List<Appointment>> GetAll()
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "SELECT * FROM Appointments";
-                return conn.Query<Appointment>(query).AsList();
+                return (await conn.QueryAsync<Appointment>(query)).AsList();
             }
         }
 
-        public List<Appointment> GetByEmail(string email)
+        public async Task<List<Appointment>> GetByEmail(string email)
         {
             using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 string query = "SELECT * FROM Appointments WHERE Email = @Email";
-                return conn.Query<Appointment>(query, new { Email = email }).AsList();
+                return (await conn.QueryAsync<Appointment>(query, new { Email = email })).AsList();
             }
         }
+
+        public async Task<Appointment> GetById(int id)
+        {
+            using (var conn = new SqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+                string query = "SELECT * FROM Appointments WHERE Id = @id";
+                return await conn.QueryFirstOrDefaultAsync<Appointment>(query, new { id });
+            }
+        }
+
     }
 }

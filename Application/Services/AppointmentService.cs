@@ -1,6 +1,10 @@
-﻿using Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Domain.Entities;
 using Domain.Interfaces;
 using Domain.ServiceInterfaces;
+
 namespace Application.Services
 {
     public class AppointmentService : IAppointmentService
@@ -12,12 +16,11 @@ namespace Application.Services
             _appointmentRepository = appointmentRepository;
         }
 
-        public void Add(Appointment appointment)
+        public async Task Add(Appointment appointment)
         {
-    
             if (!string.IsNullOrEmpty(appointment.Name) && !string.IsNullOrEmpty(appointment.Email))
             {
-                _appointmentRepository.Add(appointment);
+                await _appointmentRepository.Add(appointment);
             }
             else
             {
@@ -25,30 +28,26 @@ namespace Application.Services
             }
         }
 
-        public void Update(Appointment appointment)
+        public async Task Update(Appointment appointment)
         {
-           
-            _appointmentRepository.Update(appointment);
+            await _appointmentRepository.Update(appointment);
         }
 
-        public void DeleteById(int id)
+        public async Task DeleteById(int id)
         {
-      
-            _appointmentRepository.DeleteById(id);
+            await _appointmentRepository.DeleteById(id);
         }
 
-        public void DeleteByName(string name)
+        public async Task DeleteByName(string name)
         {
-          
-            _appointmentRepository.DeleteByName(name);
+            await _appointmentRepository.DeleteByName(name);
         }
 
-        public List<Appointment> GetByEmail(string email)
+        public async Task<List<Appointment>> GetByEmail(string email)
         {
-         
             if (!string.IsNullOrEmpty(email))
             {
-                return _appointmentRepository.GetByEmail(email);
+                return await _appointmentRepository.GetByEmail(email);
             }
             else
             {
@@ -56,10 +55,14 @@ namespace Application.Services
             }
         }
 
-        public List<Appointment> GetAll()
+        public async Task<List<Appointment>> GetAll()
         {
-          
-            return _appointmentRepository.GetAll();
+            return await _appointmentRepository.GetAll();
+        }
+
+        public async Task<Appointment> GetById(int id)
+        {
+            return await _appointmentRepository.GetById(id);
         }
     }
 }

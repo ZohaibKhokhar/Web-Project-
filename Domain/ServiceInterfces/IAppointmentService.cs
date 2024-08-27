@@ -1,20 +1,23 @@
 ﻿using Domain.Entities;
-
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Domain.ServiceInterfaces
 {
     public interface IAppointmentService
     {
-        public void Add(Appointment appointment);
+        Task Add(Appointment appointment);
 
-        public void Update(Appointment appointment);
+        Task Update(Appointment appointment);
 
-        public void DeleteById(int id);
+        Task DeleteById(int id);
 
-        public void DeleteByName(string name);
+        Task DeleteByName(string name);
 
-        public List<Appointment> GetByEmail(string email);
+        Task<List<Appointment>> GetByEmail(string email);
 
-        public List<Appointment> GetAll();
+        Task<Appointment> GetById(int id);
+
+        Task<List<Appointment>> GetAll();
     }
 }

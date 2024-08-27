@@ -49,6 +49,8 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);

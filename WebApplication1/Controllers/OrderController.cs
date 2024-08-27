@@ -6,6 +6,10 @@ using Domain.Entities;
 using WebApplication1.Models;
 using Microsoft.AspNetCore.SignalR;
 using WebApplication1.Hubs;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
+using Microsoft.Extensions.Caching.Memory;
 
 [Authorize]
 public class OrderController : Controller
@@ -16,8 +20,18 @@ public class OrderController : Controller
     private readonly ICustomerService _customerService;
     private readonly IProductService _productService;
     private readonly ISanitizationHelper _sanitizer;
+    private readonly IHubContext<OrderHub> _hubContext;
+    private readonly IMemoryCache _cache;
 
-    public OrderController(IHttpContextAccessor httpContextAccessor, IOrderService orderService, IOrderItemService orderItemService, ICustomerService customerService,IProductService productService,ISanitizationHelper sanitizer)
+    public OrderController(
+        IHttpContextAccessor httpContextAccessor,
+        IOrderService orderService,
+        IOrderItemService orderItemService,
+        ICustomerService customerService,
+        IProductService productService,
+        ISanitizationHelper sanitizer,
+        IHubContext<OrderHub> hubContext,
+        IMemoryCache cache)
     {
         _httpContextAccessor = httpContextAccessor;
         _orderService = orderService;
@@ -25,36 +39,40 @@ public class OrderController : Controller
         _customerService = customerService;
         _productService = productService;
         _sanitizer = sanitizer;
+        _hubContext = hubContext;
+        _cache = cache;
     }
 
-    public int CartCount
+    public int CartCount => GetCartItemsFromSession().Count;
+
+    public async Task<IActionResult> Index()
     {
-        get
+        const string cacheKey = "productsCache";
+        if (!_cache.TryGetValue(cacheKey, out List<Products> products))
         {
-            return GetCartItemsFromSession().Count;
-        }
-    }
+            products = await _productService.GetAll();
 
-    public IActionResult Index()
-    {
-       
-        return View(_productService.GetAll());
-     
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(5))
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+
+
+            _cache.Set(cacheKey, products, cacheOptions);
+        }
+        return View(products);
     }
 
     [HttpPost]
-
-    public JsonResult AddToCart(int productId, int quantity)
+    public async Task<JsonResult> AddToCart(int productId, int quantity)
     {
         try
         {
             var cartItems = GetCartItemsFromSession();
             var existingItem = cartItems.Find(item => item.ProductId == productId);
+            var prod = await _productService.Get(productId);
 
             if (existingItem != null)
             {
-                var prod = _productService.Get(productId);
-
                 if ((existingItem.Quantity + quantity) <= prod.Quantity)
                 {
                     existingItem.Quantity += quantity;
@@ -66,8 +84,6 @@ public class OrderController : Controller
             }
             else
             {
-                var prod = _productService.Get(productId);
-
                 if (prod != null && prod.Quantity != 0)
                 {
                     cartItems.Add(new CartItem
@@ -84,11 +100,7 @@ public class OrderController : Controller
             }
 
             HttpContext.Session.SetString("Cart", JsonConvert.SerializeObject(cartItems));
-
-
-            // Calculate updated cart count
             int updatedCartCount = cartItems.Count;
-
             return Json(new { success = true, count = updatedCartCount });
         }
         catch (Exception ex)
@@ -96,7 +108,6 @@ public class OrderController : Controller
             return Json(new { success = false, message = "An error occurred: " + ex.Message });
         }
     }
-
 
     [HttpGet]
     public IActionResult PlaceOrder()
@@ -110,30 +121,29 @@ public class OrderController : Controller
     {
         if (ModelState.IsValid)
         {
-            customer.Name = _sanitizer.SanitizeString(customer.Name);
-            customer.Address = _sanitizer.SanitizeString(customer.Address);
-            int id = _customerService.getLastId();
+            customer.Name = await _sanitizer.SanitizeString(customer.Name);
+            customer.Address = await _sanitizer.SanitizeString(customer.Address);
+            int id = await _customerService.getLastId();
             customer.CustomerId = ++id;
-
             customer.Email = User.Identity.Name;
-            _customerService.AddCustomer(customer);
+            await _customerService.AddCustomer(customer);
 
-            id = _orderService.GetMaxOrderId();
+            id = await _orderService.GetMaxOrderId();
             id++;
 
-            Order order = new Order
+            var order = new Order
             {
                 OrderId = id,
                 CustomerId = customer.CustomerId,
                 OrderDate = DateTime.Now,
-                TotalPrice = CalculateTotalPrice() // Calculate the total price of the order
+                TotalPrice = CalculateTotalPrice()
             };
 
-            _orderService.AddOrder(order);
+            await _orderService.AddOrder(order);
 
             foreach (var item in GetCartItemsFromSession())
             {
-                OrderItem orderItem = new OrderItem
+                var orderItem = new OrderItem
                 {
                     OrderId = order.OrderId,
                     ProductId = item.ProductId,
@@ -141,15 +151,12 @@ public class OrderController : Controller
                     Price = item.Product.DiscountedPrice
                 };
 
-                _productService.UpdateQuantity(orderItem.ProductId, orderItem.Quantity);
-                _orderItemService.AddOrderItem(orderItem);
+                await _productService.UpdateQuantity(orderItem.ProductId, orderItem.Quantity);
+                await _orderItemService.AddOrderItem(orderItem);
             }
 
             HttpContext.Session.Remove("Cart");
-
-  
-            var hubContext = (IHubContext<OrderHub>)HttpContext.RequestServices.GetService(typeof(IHubContext<OrderHub>));
-            await hubContext.Clients.All.SendAsync("ReceiveOrderNotification");
+            await _hubContext.Clients.All.SendAsync("ReceiveOrderNotification");
 
             return RedirectToAction("OrderSuccess", "Order");
         }
@@ -164,19 +171,17 @@ public class OrderController : Controller
         return View();
     }
 
-
-    // all cart things using session
-    public IActionResult Cart()
+    public async Task<IActionResult> Cart()
     {
-        List<CartItem> cartItems = GetCartItemsFromSession(); // or GetCartItemsFromDatabase()
+        var cartItems = GetCartItemsFromSession(); // or GetCartItemsFromDatabase()
         return View(cartItems);
     }
+
     [HttpPost]
-    public JsonResult RemoveFromCart(int productId)
+    public async Task<JsonResult> RemoveFromCart(int productId)
     {
         try
         {
-            // Update cart count
             var cartItems = GetCartItemsFromSession();
             var itemToRemove = cartItems.Find(item => item.ProductId == productId);
 
@@ -184,10 +189,7 @@ public class OrderController : Controller
             {
                 cartItems.Remove(itemToRemove);
                 HttpContext.Session.SetString("Cart", JsonConvert.SerializeObject(cartItems));
-
-                // Calculate updated cart count
                 int updatedCartCount = cartItems.Count;
-
                 return Json(new { success = true, count = updatedCartCount });
             }
             else
@@ -200,8 +202,6 @@ public class OrderController : Controller
             return Json(new { success = false, message = "An error occurred: " + ex.Message });
         }
     }
-  
-
 
     private List<CartItem> GetCartItemsFromSession()
     {
@@ -214,6 +214,7 @@ public class OrderController : Controller
         }
         return cartItems;
     }
+
     private decimal CalculateTotalPrice()
     {
         decimal total = 0;
@@ -223,6 +224,7 @@ public class OrderController : Controller
         }
         return total;
     }
+
     [HttpGet]
     public JsonResult GetCartCount()
     {
@@ -236,8 +238,4 @@ public class OrderController : Controller
             return Json(new { count = 0, message = "An error occurred: " + ex.Message });
         }
     }
-
-
 }
-
-

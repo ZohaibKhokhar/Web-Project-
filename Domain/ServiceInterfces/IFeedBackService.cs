@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Domain.Entities;
 
 namespace Domain.ServiceInterfaces
 {
     public interface IFeedBackService
     {
-        void Add(FeedBack feedback);
-        IEnumerable<FeedBack> GetAll();
+        Task Add(FeedBack feedback);
+        Task<IEnumerable<FeedBack>> GetAll();
     }
 }

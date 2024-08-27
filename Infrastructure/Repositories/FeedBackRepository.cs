@@ -3,6 +3,7 @@ using Dapper;
 using Domain.Interfaces;
 using Domain.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -15,21 +16,21 @@ namespace Infrastructure.Repositories
             _connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=thisdb;Integrated Security=True;";
         }
 
-        public void Add(FeedBack feedback)
+        public async Task Add(FeedBack feedback)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
                 var query = "INSERT INTO FeedBack (Name, Email, Message) VALUES (@Name, @Email, @Message)";
-                connection.Execute(query,feedback);
+                await connection.ExecuteAsync(query, feedback);
             }
         }
 
-        public IEnumerable<FeedBack> GetAll()
+        public async Task<IEnumerable<FeedBack>> GetAll()
         {
             using (var connection = new SqlConnection(_connectionString))
             {
                 var query = "SELECT Id, Name, Email, Message FROM FeedBack";
-                return connection.Query<FeedBack>(query);
+                return await connection.QueryAsync<FeedBack>(query);
             }
         }
     }

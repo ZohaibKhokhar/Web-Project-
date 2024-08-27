@@ -3,6 +3,7 @@ using Dapper;
 using Domain.Interfaces;
 using Domain.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -10,39 +11,39 @@ namespace Infrastructure.Repositories
     {
         public const string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=thisdb;Integrated Security=True;";
 
-        public void AddOrderItem(OrderItem orderItem)
+        public async Task AddOrderItem(OrderItem orderItem)
         {
             using (var connection = new SqlConnection(connectionString))
             {
                 var query = "INSERT INTO OrderItem (OrderId, ProductId, Quantity, Price) VALUES (@OrderId, @ProductId, @Quantity, @Price)";
-                connection.Execute(query, orderItem);
+                await connection.ExecuteAsync(query, orderItem);
             }
         }
 
-        public List<OrderItem> GetAllOrderItems()
+        public async Task<List<OrderItem>> GetAllOrderItems()
         {
             using (var connection = new SqlConnection(connectionString))
             {
                 var query = "SELECT * FROM OrderItem";
-                return connection.Query<OrderItem>(query).AsList();
+                return (await connection.QueryAsync<OrderItem>(query)).AsList();
             }
         }
 
-        public List<OrderItem> GetAllByOrderId(int orderId)
+        public async Task<List<OrderItem>> GetAllByOrderId(int orderId)
         {
             using (var connection = new SqlConnection(connectionString))
             {
                 var query = "SELECT * FROM OrderItem WHERE OrderId = @OrderId";
-                return connection.Query<OrderItem>(query, new { OrderId = orderId }).AsList();
+                return (await connection.QueryAsync<OrderItem>(query, new { OrderId = orderId })).AsList();
             }
         }
 
-        public void deleteByOrderId(int orderId)
+        public async Task deleteByOrderId(int orderId)
         {
             using (var connection = new SqlConnection(connectionString))
             {
                 var query = "DELETE FROM OrderItem WHERE OrderId = @OrderId";
-                connection.Execute(query, new { OrderId = orderId });
+                await connection.ExecuteAsync(query, new { OrderId = orderId });
             }
         }
     }

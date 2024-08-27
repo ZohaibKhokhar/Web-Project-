@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Domain.Entities;
 using Domain.Interfaces;
 using Domain.ServiceInterfaces;
 
@@ -13,24 +15,24 @@ namespace Application.Services
             _orderItemRepository = orderItemRepository;
         }
 
-        public void AddOrderItem(OrderItem orderItem)
+        public async Task AddOrderItem(OrderItem orderItem)
         {
-            _orderItemRepository.AddOrderItem(orderItem);
+            await _orderItemRepository.AddOrderItem(orderItem);
         }
 
-        public List<OrderItem> GetAllOrderItems()
+        public async Task<List<OrderItem>> GetAllOrderItems()
         {
-            return _orderItemRepository.GetAllOrderItems();
+            return await _orderItemRepository.GetAllOrderItems();
         }
 
-        public List<OrderItem> GetAllByOrderId(int orderId)
+        public async Task<List<OrderItem>> GetAllByOrderId(int orderId)
         {
-            return _orderItemRepository.GetAllByOrderId(orderId);
+            return await _orderItemRepository.GetAllByOrderId(orderId);
         }
 
-        public void deleteByOrderId(int orderId)
+        public async Task deleteByOrderId(int orderId)
         {
-            _orderItemRepository.deleteByOrderId(orderId);
+            await _orderItemRepository.deleteByOrderId(orderId);
         }
     }
 }

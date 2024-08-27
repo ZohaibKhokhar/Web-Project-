@@ -1,16 +1,17 @@
 ﻿using Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Domain.ServiceInterfaces
 {
     public interface IOrderItemService
     {
-        public void AddOrderItem(OrderItem orderItem);
+        Task AddOrderItem(OrderItem orderItem);
 
-        public List<OrderItem> GetAllOrderItems();
+        Task<List<OrderItem>> GetAllOrderItems();
 
-        public List<OrderItem> GetAllByOrderId(int orderId);
+        Task<List<OrderItem>> GetAllByOrderId(int orderId);
 
-        public void deleteByOrderId(int orderId);
-
-
+        Task deleteByOrderId(int orderId);
     }
 }

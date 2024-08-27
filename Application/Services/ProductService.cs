@@ -1,6 +1,10 @@
-﻿using Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Domain.Entities;
 using Domain.ServiceInterfaces;
 using Domain.Interfaces;
+
 namespace Application.Services
 {
     public class ProductService : IProductService
@@ -12,12 +16,11 @@ namespace Application.Services
             _productRepository = productRepository;
         }
 
-        public void Add(Products product)
+        public async Task Add(Products product)
         {
-        
             if (product.Price > 0)
             {
-                _productRepository.Add(product);
+                await _productRepository.Add(product);
             }
             else
             {
@@ -25,29 +28,27 @@ namespace Application.Services
             }
         }
 
-        public void Update(Products product)
+        public async Task Update(Products product)
         {
-       
-            _productRepository.Update(product);
+            await _productRepository.Update(product);
         }
 
-        public void DeleteById(int id)
+        public async Task DeleteById(int id)
         {
-     
-            _productRepository.DeleteById(id);
+            await _productRepository.DeleteById(id);
         }
 
-        public Products GetByName(string name)
+        public async Task<Products> GetByName(string name)
         {
-            return _productRepository.GetByName(name);
+            return await _productRepository.GetByName(name);
         }
 
-        public void UpdateQuantity(int id, int minusQuantity)
+        public async Task UpdateQuantity(int id, int minusQuantity)
         {
-            var product = _productRepository.Get(id);
+            var product = await _productRepository.Get(id);
             if (product != null && product.Quantity >= minusQuantity)
             {
-                _productRepository.UpdateQuantity(id, minusQuantity);
+                await _productRepository.UpdateQuantity(id, minusQuantity);
             }
             else
             {
@@ -55,15 +56,15 @@ namespace Application.Services
             }
         }
 
-        public List<Products> GetAll()
+        public async Task<List<Products>> GetAll()
         {
             // Maybe add sorting or filtering logic here
-            return _productRepository.GetAll();
+            return await _productRepository.GetAll();
         }
 
-        public Products Get(int id)
+        public async Task<Products> Get(int id)
         {
-            return _productRepository.Get(id);
+            return await _productRepository.Get(id);
         }
     }
 }

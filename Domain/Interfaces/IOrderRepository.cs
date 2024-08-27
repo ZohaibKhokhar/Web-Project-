@@ -1,22 +1,23 @@
 ﻿using Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
     public interface IOrderRepository
     {
-        public void AddOrder(Order order);
+        Task AddOrder(Order order);
 
-        public List<Order> GetAll();
+        Task<List<Order>> GetAll();
 
-        public int GetMaxOrderId();
+        Task<int> GetMaxOrderId();
 
-        public int GetOrderIdByCustomerId(int id);
+        Task<int> GetOrderIdByCustomerId(int id);
 
-        public Order getOrderById(int id);
+        Task<Order> getOrderById(int id);
 
-        public void deleteOrderById(int id);
+        Task deleteOrderById(int id);
 
-        public int getCustomerIdByOrderId(int id);
-
+        Task<int> getCustomerIdByOrderId(int id);
     }
 }

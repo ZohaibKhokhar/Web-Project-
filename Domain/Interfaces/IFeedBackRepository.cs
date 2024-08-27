@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
     public interface IFeedBackRepository
     {
-        void Add(FeedBack feedback);
-        IEnumerable<FeedBack> GetAll();
+        Task Add(FeedBack feedback);
+        Task<IEnumerable<FeedBack>> GetAll();
     }
 }

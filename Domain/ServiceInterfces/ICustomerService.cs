@@ -1,19 +1,21 @@
 ﻿using Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Domain.ServiceInterfaces
 {
     public interface ICustomerService
     {
-        public void AddCustomer(Customer customer);
+        Task AddCustomer(Customer customer);
 
-        public List<Customer> GetAllCustomers();
+        Task<List<Customer>> GetAllCustomers();
 
-        public int getLastId();
+        Task<int> getLastId();
 
-        public Customer GetCustomerById(int id);
+        Task<Customer> GetCustomerById(int id);
 
-        public List<int> GetCustomerId(string currentUserName);
+        Task<List<int>> GetCustomerId(string currentUserName);
 
-        public void deleteByCustomerId(int customerId);
+        Task deleteByCustomerId(int customerId);
     }
 }

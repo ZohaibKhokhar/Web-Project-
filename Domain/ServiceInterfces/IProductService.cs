@@ -1,22 +1,23 @@
 ﻿using Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Domain.ServiceInterfaces
 {
     public interface IProductService
     {
-        public void Add(Products product);
-        public void Update(Products product);
+        Task Add(Products product);
 
-        public void DeleteById(int id);
+        Task Update(Products product);
 
-        public Products GetByName(string name);
-        public void UpdateQuantity(int id, int minusQuantity);
+        Task DeleteById(int id);
 
-        public List<Products> GetAll();
+        Task<Products> GetByName(string name);
 
-        public Products Get(int id);
+        Task UpdateQuantity(int id, int minusQuantity);
 
+        Task<List<Products>> GetAll();
 
-
+        Task<Products> Get(int id);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.ServiceInterfaces;
 
@@ -13,14 +14,14 @@ namespace Application.Services
             _feedBackRepository = feedBackRepository;
         }
 
-        public void Add(FeedBack feedback)
+        public async Task Add(FeedBack feedback)
         {
-            _feedBackRepository.Add(feedback);
+            await _feedBackRepository.Add(feedback);
         }
 
-        public IEnumerable<FeedBack> GetAll()
+        public async Task<IEnumerable<FeedBack>> GetAll()
         {
-            return _feedBackRepository.GetAll();
+            return await _feedBackRepository.GetAll();
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿using Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Domain.Entities;
 using Domain.ServiceInterfaces;
 using Domain.Interfaces;
 
-
 namespace Application.Services
 {
-    public class CustomerService:ICustomerService
+    public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
 
@@ -14,12 +16,11 @@ namespace Application.Services
             _customerRepository = customerRepository;
         }
 
-        public void AddCustomer(Customer customer)
+        public async Task AddCustomer(Customer customer)
         {
-
             if (customer != null && !string.IsNullOrEmpty(customer.Name))
             {
-                _customerRepository.AddCustomer(customer);
+                await _customerRepository.AddCustomer(customer);
             }
             else
             {
@@ -27,22 +28,19 @@ namespace Application.Services
             }
         }
 
-        public List<Customer> GetAllCustomers()
+        public async Task<List<Customer>> GetAllCustomers()
         {
-       
-            return _customerRepository.GetAllCustomers();
+            return await _customerRepository.GetAllCustomers();
         }
 
-        public int getLastId()
+        public async Task<int> getLastId()
         {
- 
-            return _customerRepository.getLastId();
+            return await _customerRepository.getLastId();
         }
 
-        public Customer GetCustomerById(int id)
+        public async Task<Customer> GetCustomerById(int id)
         {
-  
-            var customer = _customerRepository.GetCustomerById(id);
+            var customer = await _customerRepository.GetCustomerById(id);
             if (customer == null)
             {
                 throw new KeyNotFoundException("Customer not found.");
@@ -50,12 +48,11 @@ namespace Application.Services
             return customer;
         }
 
-        public List<int> GetCustomerId(string currentUserName)
+        public async Task<List<int>> GetCustomerId(string currentUserName)
         {
-            // Business logic to get customer IDs by username
             if (!string.IsNullOrEmpty(currentUserName))
             {
-                return _customerRepository.GetCustomerId(currentUserName);
+                return await _customerRepository.GetCustomerId(currentUserName);
             }
             else
             {
@@ -63,13 +60,12 @@ namespace Application.Services
             }
         }
 
-        public void deleteByCustomerId(int customerId)
+        public async Task deleteByCustomerId(int customerId)
         {
-            // Business logic before deleting a customer by ID
-            var customer = _customerRepository.GetCustomerById(customerId);
+            var customer = await _customerRepository.GetCustomerById(customerId);
             if (customer != null)
             {
-                _customerRepository.deleteByCustomerId(customerId);
+                await _customerRepository.deleteByCustomerId(customerId);
             }
             else
             {

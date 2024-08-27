@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Domain.ServiceInterfaces;
 using Domain.Entities;
-
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace WebApplication1.Controllers
 {
@@ -11,16 +12,18 @@ namespace WebApplication1.Controllers
     {
         private readonly IAppointmentService _appointmentService;
         private readonly ISanitizationHelper _sanitizer;
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<AppointmentController> _logger;
 
-        public AppointmentController(ILogger<HomeController> logger, IAppointmentService appointmentService, ISanitizationHelper sanitizer)
+        public AppointmentController(
+            ILogger<AppointmentController> logger,
+            IAppointmentService appointmentService,
+            ISanitizationHelper sanitizer)
         {
             _logger = logger;
             _appointmentService = appointmentService;
             _sanitizer = sanitizer;
-
         }
- 
+
         public IActionResult Index()
         {
             return View();
@@ -34,39 +37,46 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Add(Appointment appointment)
+        public async Task<IActionResult> Add(Appointment appointment)
         {
             if (ModelState.IsValid)
             {
-                appointment.Name = _sanitizer.SanitizeString(appointment.Name);
-                appointment.Reason = _sanitizer.SanitizeString(appointment.Reason);
+                appointment.Name = await _sanitizer.SanitizeString(appointment.Name);
+                appointment.Reason = await _sanitizer.SanitizeString(appointment.Reason);
                 appointment.Email = User.Identity.Name;
-                _appointmentService.Add(appointment);
+                await _appointmentService.Add(appointment);
                 return RedirectToAction("Success");
             }
             else
                 return View(appointment);
         }
-        public IActionResult GetAll()
+
+        public async Task<IActionResult> GetAll()
         {
-            return View(_appointmentService.GetAll());
+            var appointments = await _appointmentService.GetAll();
+            return View(appointments);
         }
-        public JsonResult FetchAll()
+
+        public async Task<JsonResult> FetchAll()
         {
-            return Json(_appointmentService.GetAll());
+            var appointments = await _appointmentService.GetAll();
+            return Json(appointments);
         }
 
         public IActionResult Success()
         {
             return View();
         }
-        public IActionResult MyAppointments()
+
+        public async Task<IActionResult> MyAppointments()
         {
-            return View(_appointmentService.GetByEmail(User.Identity.Name));
+            var appointments = await _appointmentService.GetByEmail(User.Identity.Name);
+            return View(appointments);
         }
-        public IActionResult Delete(int id)
+
+        public async Task<IActionResult> Delete(int id)
         {
-            _appointmentService.DeleteById(id);
+            await _appointmentService.DeleteById(id);
             return RedirectToAction("ShowAll", "AdminPanel");
         }
     }

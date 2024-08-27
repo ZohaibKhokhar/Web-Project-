@@ -1,10 +1,12 @@
-﻿using Domain.Entities;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Domain.Entities;
 using Domain.Interfaces;
 using Domain.ServiceInterfaces;
 
 namespace Application.Services
 {
-    public class OrderService :IOrderService
+    public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
 
@@ -13,39 +15,39 @@ namespace Application.Services
             _orderRepository = orderRepository;
         }
 
-        public void AddOrder(Order order)
+        public async Task AddOrder(Order order)
         {
-            _orderRepository.AddOrder(order);
+            await _orderRepository.AddOrder(order);
         }
 
-        public List<Order> GetAll()
+        public async Task<List<Order>> GetAll()
         {
-            return _orderRepository.GetAll();
+            return await _orderRepository.GetAll();
         }
 
-        public int GetMaxOrderId()
+        public async Task<int> GetMaxOrderId()
         {
-            return _orderRepository.GetMaxOrderId();
+            return await _orderRepository.GetMaxOrderId();
         }
 
-        public int GetOrderIdByCustomerId(int id)
+        public async Task<int> GetOrderIdByCustomerId(int id)
         {
-            return _orderRepository.GetOrderIdByCustomerId(id);
+            return await _orderRepository.GetOrderIdByCustomerId(id);
         }
 
-        public Order getOrderById(int id)
+        public async Task<Order> getOrderById(int id)
         {
-            return _orderRepository.getOrderById(id);
+            return await _orderRepository.getOrderById(id);
         }
 
-        public void deleteOrderById(int id)
+        public async Task deleteOrderById(int id)
         {
-            _orderRepository.deleteOrderById(id);
+            await _orderRepository.deleteOrderById(id);
         }
 
-        public int getCustomerIdByOrderId(int id)
+        public async Task<int> getCustomerIdByOrderId(int id)
         {
-            return _orderRepository.getCustomerIdByOrderId(id);
+            return await _orderRepository.getCustomerIdByOrderId(id);
         }
     }
 }

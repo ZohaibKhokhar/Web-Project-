@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Domain.ServiceInterfaces;
 using Domain.Entities;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace WebApplication1.Controllers
 {
@@ -15,22 +17,34 @@ namespace WebApplication1.Controllers
         private readonly IOrderItemService _orderItemService;
         private readonly ICustomerService _customerService;
         private readonly IFeedBackService _feedBackService;
+        private readonly IMemoryCache _cache;
         private readonly ISanitizationHelper _sanitizer;
-        public HomeController(ILogger<HomeController> logger,ISanitizationHelper sanitizer, IProductService productService, IOrderService orderService, IOrderItemService orderItemService, ICustomerService customerService,IFeedBackService feedBackService)
+
+        public HomeController(
+            ILogger<HomeController> logger,
+            ISanitizationHelper sanitizer,
+            IProductService productService,
+            IOrderService orderService,
+            IOrderItemService orderItemService,
+            ICustomerService customerService,
+            IFeedBackService feedBackService,
+            IMemoryCache cache)
         {
             _logger = logger;
             _productService = productService;
             _orderService = orderService;
             _orderItemService = orderItemService;
             _customerService = customerService;
-            _feedBackService=feedBackService;
+            _feedBackService = feedBackService;
             _sanitizer = sanitizer;
-
+            _cache = cache;
         }
+
         [AllowAnonymous]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(_productService.GetAll());
+            var products = await _productService.GetAll();
+            return View(products);
         }
 
         [AllowAnonymous]
@@ -45,14 +59,15 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ContactUs(FeedBack feedBack)
+        public async Task<IActionResult> ContactUs(FeedBack feedBack)
         {
             if (ModelState.IsValid)
             {
-                feedBack.Message = _sanitizer.SanitizeString(feedBack.Message);
-                _feedBackService.Add(feedBack);
+                feedBack.Message = await _sanitizer.SanitizeString(feedBack.Message);
+                await _feedBackService.Add(feedBack);
                 return RedirectToAction("feedBackSuccess");
             }
             else
@@ -60,86 +75,90 @@ namespace WebApplication1.Controllers
                 return View(feedBack);
             }
         }
+
         public IActionResult feedBackSuccess()
         {
             return View();
         }
-        public IActionResult SearchProduct()
-        {
-            _logger.LogInformation("The user is in searchproducts");
-            
-            return View(_productService.GetAll());
-        }
-       
-        public IActionResult Search(string x)
-        {
-            _logger.LogInformation("The user is in search");
-            List<Products> list = new List<Products>();
-            if (x == "all" || x == "ALL" || x == "All")
-                list = _productService.GetAll();
-            else
-                list.Add(_productService.GetByName(x));
-            if (list.Count == 0)
-                ViewBag.Message = "No Item Found";
-            
-            
-            return PartialView("_SearchPartial",list);
-        }
-        public IActionResult MyOrder()
-        {
-            List<int> customerIds = new List<int>();
 
-            customerIds = _customerService.GetCustomerId(User.Identity.Name);
-            List<Order> listOrders = new List<Order>();
+        public async Task<IActionResult> SearchProduct()
+        {
+            const string cacheKey = "productsCache";
+            if (!_cache.TryGetValue(cacheKey, out List<Products> products))
+            {
+                products = await _productService.GetAll();
+
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(5))   
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+
+             
+                _cache.Set(cacheKey, products, cacheOptions);
+            }
+            return View(products);
+        }
+
+
+        public async Task<IActionResult> Search(string x)
+        {
+            List<Products> list = new List<Products>();
+
+            if (x.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                list = await _productService.GetAll();
+            }
+            else
+            {
+                var product = await _productService.GetByName(x);
+                if (product != null)
+                {
+                    list.Add(product);
+                }
+            }
+
+            if (list.Count == 0)
+            {
+                ViewBag.Message = "No Item Found";
+            }
+
+            return PartialView("_SearchPartial", list);
+        }
+
+        public async Task<IActionResult> MyOrder()
+        {
+            var customerIds = await _customerService.GetCustomerId(User.Identity.Name);
+            var listOrders = new List<Order>();
+
             if (customerIds.Count != 0)
             {
-
                 foreach (var cusId in customerIds)
                 {
-                    int orderId = _orderService.GetOrderIdByCustomerId(cusId);
-                    Order order = new Order();
-                    order = _orderService.getOrderById(orderId);
+                    var orderId = await _orderService.GetOrderIdByCustomerId(cusId);
+                    var order = await _orderService.getOrderById(orderId);
                     listOrders.Add(order);
                 }
-
-                return View(listOrders);
             }
-            else
-            {
 
-                return View(listOrders);
-            }
+            return View(listOrders);
         }
-        public IActionResult YourOrder(int id)
+
+        public async Task<IActionResult> YourOrder(int id)
         {
-            List<OrderItem> items = new List<OrderItem>();
-            items = _orderItemService.GetAllByOrderId(id);
+            var items = await _orderItemService.GetAllByOrderId(id);
             return View(items);
         }
-        public IActionResult SearchInRange()
+
+
+        public async Task<IActionResult> YourDetail(int id)
         {
-            return View();
+            var customer = await _customerService.GetCustomerById(id);
+            return View(customer);
         }
-        public JsonResult GetProductsByPriceRange(decimal minPrice, decimal maxPrice)
+
+        public async Task<IActionResult> ProductDetail(int id)
         {
-            List<Products> products = _productService.GetAll();
-            List<Products> filtered = new List<Products>();
-            foreach (var product in products)
-            {
-                if (product.DiscountedPrice >= minPrice&&product.DiscountedPrice<=maxPrice)
-                {
-                    filtered.Add(product);
-                }
-            }
-            return Json(filtered);
-        }
-        public IActionResult YourDetail(int id)
-        {
-            return View(_customerService.GetCustomerById(id));
-        }
-        public IActionResult ProductDetail(int id)
-        {
-            return View(_productService.Get(id));
+            var product = await _productService.Get(id);
+            return View(product);
         }
     }
 }
