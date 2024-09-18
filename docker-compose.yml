@@ -1,0 +1,31 @@
+version: '3.8'
+
+networks:
+  webapplicationnetwork:
+
+services:
+  webapplicationDB:
+    container_name: webapplicationDB
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "8002:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=khokhar*123
+    networks:
+    - webapplicationnetwork
+
+
+
+  webapplication1:
+    container_name: webapplication1
+    ports:
+      - "8001:8080"
+    image: ${DOCKER_REGISTRY-}webapplication1
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+    depends_on:
+      - webapplicationDB
+    networks:
+    - webapplicationnetwork

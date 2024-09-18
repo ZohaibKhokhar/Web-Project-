@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.ServiceInterfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace webApi.Controllers
             _productService = productService;
         }
 
-       
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Products>>> GetAll()
         {
@@ -44,7 +45,7 @@ namespace webApi.Controllers
             if (ModelState.IsValid)
             {
                 await _productService.Add(product);
-                return CreatedAtAction(nameof(Get), new { id = product.ID }, product);
+                return Created();
             }
             return BadRequest(ModelState);
         }

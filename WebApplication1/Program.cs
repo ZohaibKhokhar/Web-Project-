@@ -12,7 +12,7 @@ using Application.SanitizationService;
 using WebApplication1.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -35,7 +35,7 @@ builder.Services.AddScoped<ISanitizationHelper, SanitizationHelper>();
 
 
 
-builder.Services.AddScoped<IProductRepository,ProductsRepository>();
+builder.Services.AddScoped<IProductRepository, ProductsRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IFeedBackRepository, FeedBackRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
